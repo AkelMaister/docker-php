@@ -1,0 +1,49 @@
+ARG IMAGE_VERSION=7.4.12-fpm-alpine
+FROM php:$IMAGE_VERSION
+
+ARG AMQP_VERSION=1.10.2
+ARG PSR_VERSION=1.0.1
+ARG COMPOSER_MAJOR=2
+
+RUN apk add --no-cache libzip-dev postgresql-dev rabbitmq-c-dev icu-dev git openssh-client supervisor \
+ && apk add --no-cache --virtual .build-dependencies curl-dev zlib-dev ${PHPIZE_DEPS}
+
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+ && php composer-setup.php --install-dir=/usr/local/bin --filename=composer --${COMPOSER_MAJOR} \
+ && php -r "unlink('composer-setup.php');"
+
+RUN curl -L -o /tmp/amqp.tar.gz https://pecl.php.net/get/amqp-${AMQP_VERSION}.tgz \
+ && tar xfz /tmp/amqp.tar.gz -C /tmp \
+ && rm -f /tmp/amqp.tar.gz \
+ && mkdir -p /usr/src/php/ext/amqp \
+ && mv /tmp/amqp-${AMQP_VERSION}/* /usr/src/php/ext/amqp \
+ && rm -rf /tmp/amqp-${AMQP_VERSION} 
+
+RUN curl -L -o /tmp/psr.tar.gz https://github.com/jbboehr/php-psr/archive/v${PSR_VERSION}.tar.gz \
+ && tar xzf /tmp/psr.tar.gz -C /tmp \
+ && rm -f /tmp/psr.tar.gz \
+ && mkdir -p /usr/src/php/ext/psr \
+ && mv /tmp/php-psr-${PSR_VERSION}/* /usr/src/php/ext/psr \
+ && rm -rf /tmp/php-psr-${PSR_VERSION}
+
+RUN curl -sSL -o /usr/local/bin/install-php-extensions https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
+ && chmod +x /usr/local/bin/install-php-extensions \
+ && /usr/local/bin/install-php-extensions decimal zip pdo pdo_pgsql intl amqp psr bcmath redis apcu pcntl grpc protobuf xdebug gd sockets \
+ && rm -f $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
+ && rm -rf /usr/src/php
+
+RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
+ && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/alpine/amd64/$version \
+ && mkdir -p /tmp/blackfire \
+ && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
+ && mv /tmp/blackfire/blackfire-*.so $(php -r "echo ini_get ('extension_dir');")/blackfire.so \
+ && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz
+
+RUN rm -rf /var/cache/apk/* \
+ && apk del .build-dependencies
+
+COPY scripts/*.sh /usr/local/bin/
+COPY scripts/docker-php-entrypoint-fpm /usr/local/bin/docker-php-entrypoint
+
+RUN chmod +x /usr/local/bin/*
+
