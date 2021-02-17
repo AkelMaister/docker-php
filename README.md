@@ -1,6 +1,6 @@
 # Quick reference:
 
-Builded image available on [hub.docker.com](https://hub.docker.com/repository/docker/akel/php)
+Builded image available on [hub.docker.com](https://hub.docker.com/r/akel/php)
 
 ## Environment variables:
 
@@ -56,6 +56,6 @@ Must be set all of variables:
 
 docker image ls akel/php | grep -v "TAG" | awk '{print $2}' | grep -v "none" | tac | xargs -I {} docker push akel/php:{}
 
-# Get image list for README on [hub.docker.com](https://hub.docker.com/repository/docker/akel/php)
+# Get image list for README on [hub.docker.com](https://hub.docker.com/r/akel/php)
 
 for iid in $(docker image ls akel/php | grep -v "TAG" | awk '{print $3}' | uniq) ; do printf "* "; docker image ls | grep $iid | awk '{print $2}' | awk '{ print length(), $0 | "sort -rn" }' | awk '{print "`"$NF"`"}' | tr '\n' ' '; echo; echo; done
