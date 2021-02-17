@@ -49,13 +49,14 @@ Must be set all of variables:
 `PHP_HOME` - set homedir for php user.
 
 # Build new Docker images
-
+```
 ./build.sh
-
+```
 # Push images
-
+```
 docker image ls akel/php | grep -v "TAG" | awk '{print $2}' | grep -v "none" | tac | xargs -I {} docker push akel/php:{}
-
+```
 # Get image list for README on [hub.docker.com](https://hub.docker.com/r/akel/php)
-
+```
 for iid in $(docker image ls akel/php | grep -v "TAG" | awk '{print $3}' | uniq) ; do printf "* "; docker image ls | grep $iid | awk '{print $2}' | awk '{ print length(), $0 | "sort -rn" }' | awk '{print "`"$NF"`"}' | tr '\n' ' '; echo; echo; done
+```
