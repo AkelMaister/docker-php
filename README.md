@@ -22,6 +22,8 @@ Builded image available on [hub.docker.com](https://hub.docker.com/r/akel/php)
 
 `PHP_CRONTABS_PATH` - set path to crontab include.
 
+`PHP_CRONTABS_LOGPATH` - set path to file with crontab logs.
+
 `PHP_COMMAND_RUN` - set `true` if need to run additional command. 
 
 `PHP_COMMAND` - set full command to run. Applies only when the value of the variable `PHP_COMMAND_RUN` is set to `true`.
@@ -35,6 +37,14 @@ Builded image available on [hub.docker.com](https://hub.docker.com/r/akel/php)
 `PHP_BOOT_SCRIPTS` - set path to custom scripts what will be run at startup.
 
 `XDEBUG_ENABLE` - set `true` if you want to enable xdebug php module
+
+`NEWRELIC_LICENSE` - set License Key for NewRelic instalation. Required to enable NewRelic PHP agent.
+
+`NEWRELIC_APPNAME` - set newrelic.appname variable. Default: `PHP Application`
+
+`NEWRELIC_DAEMON_ADDRESS` - set newrelic.daemon.address variable. May be a address:port or socket path. Default: `/tmp/.newrelic.sock`
+
+`RUN_NEWRELIC_DAEMON` - set `true` if you want to run NewRelic daemon what be listen `NEWRELIC_DAEMON_ADDRESS` socket or address:port
 
 ## Create php user
 
