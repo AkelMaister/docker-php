@@ -13,5 +13,9 @@ if [ ! -z ${PHP_CRONTABS_PATH+x} ] && [ "$PHP_CRONTABS_PATH" != "" ]; then
         echo
         printenv | grep -v "no_proxy" >> /etc/environment
 
-        /usr/sbin/crond
+        if [ -z ${PHP_CRONTABS_LOGPATH+x} ]; then
+           /usr/sbin/crond
+        else
+           /usr/sbin/crond > ${PHP_CRONTABS_LOGPATH}
+        fi
 fi
